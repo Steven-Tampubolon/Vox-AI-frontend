@@ -33,7 +33,7 @@ export default function StepProfile({ onBack, onComplete }: StepProfileProps ) {
             return
         }
         if (!avatar) {
-            setError("pilih avatar terlwbih dahulu")
+            setError("pilih avatar terlebih dahulu")
             return
         }
 
@@ -43,32 +43,12 @@ export default function StepProfile({ onBack, onComplete }: StepProfileProps ) {
     }
 
     return (
-        <div className="flex flex-col items-center max-w-xl mx-auto px-6 text-center">
-            <h1 className="text-3xl md:text-4xl font-normal text-white mb-10">
-                Siapa Namamu?
+        <div className="flex flex-col items-center max-w-xl gap-10 px-6 text-center">
 
-            </h1>
-
-            <input
-                value={name}
-                onChange={(e) => {
-                    setName(e.target.value)
-                    setError("")
-                }} 
-                onKeyDown={(e) => {
-                    if (e.key === "Enter" && canFinish) handleFinish()
-                }}
-                type="text"
-                maxLength={30}
-                placeholder="Masukan nama"
-                className="w-full max-w-md h-14 bg-[#444446] border border-[#8D8D8D] rounded-lg px-5
-                text-white text-base outline-none transition-colors focus:border-[#E35336]" 
-            />
-
-            <h2 className="text-xl text-white mt-12 mb-6">
+            <h1 className="text-3xl md:text-4xl text-white mt-12 mb-6">
                 Pilih Avatar Mu
 
-            </h2>
+            </h1>
 
             <div className="grid grid-cols-3 gap-4">
                 {AVATARS.map((file) => {
@@ -80,7 +60,7 @@ export default function StepProfile({ onBack, onComplete }: StepProfileProps ) {
                             setAvatar(file)
                             setError("")
                             }}
-                            className={`w-22.5 h-22.5 rounded-3xl border-2 flex items-center justify-center
+                            className={`w-33.5 h-33.5 rounded-3xl border-2 flex items-center justify-center
                             transition-all duration-200
                             ${
                             selected
@@ -98,6 +78,26 @@ export default function StepProfile({ onBack, onComplete }: StepProfileProps ) {
                 })}
 
             </div>
+            <h2 className="text-3xl md:text-4xl font-normal text-white mb-10">
+                Siapa Namamu?
+
+            </h2>
+
+            <input
+                value={name}
+                onChange={(e) => {
+                    setName(e.target.value)
+                    setError("")
+                }} 
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" && canFinish) handleFinish()
+                }}
+                type="text"
+                maxLength={30}
+                placeholder="  Masukan nama"
+                className="w-full max-w-md h-14 bg-[#444446] border border-[#8D8D8D] rounded-lg px-5
+                text-white text-base outline-none transition-colors focus:border-[#E35336]" 
+            />
 
             {error && <p className="text-[#E35336] text-sm mt-4">{error}</p>}
 
@@ -105,7 +105,7 @@ export default function StepProfile({ onBack, onComplete }: StepProfileProps ) {
                 <button 
                     onClick={onBack}
                     className="text-sm text-[#8D8D8D] hover:text-white transition-colors">
-                   ← Kembali
+                   ← kembali
 
                 </button>
 
@@ -113,14 +113,14 @@ export default function StepProfile({ onBack, onComplete }: StepProfileProps ) {
                     onClick={handleFinish}
                     disabled={!canFinish}
                     aria-label="Mulai chat"
-                    className={`w-14 h-14 rounded-[10px] border text-white text-2xl transition-all duration-200
+                    className={`w-25 h-8 rounded-[10px] border text-white text-sm transition-all duration-200
                     ${
                     canFinish
                     ? "border-[#E35336] hover:bg-[#E35336] active:scale-95"
                     : "border-[#444446] opacity-40 cursor-not-allowed"
                     }`}
                     >
-                    →
+                   lanjutkan  →
 
                 </button>
 
