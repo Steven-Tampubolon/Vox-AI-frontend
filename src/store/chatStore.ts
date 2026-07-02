@@ -27,6 +27,12 @@ interface ChatStore {
 
     // Reset semua state (logout / clear)
     reset: () => void
+
+    // Optimistic UI
+    pendingMessage: string | null
+    failedMessage:  string | null
+    setPendingMessage: (msg: string | null) => void
+    setFailedMessage:  (msg: string | null) => void
 }
 
 // ── Default values ─────────────────────────────────────────────
@@ -35,6 +41,8 @@ const DEFAULT_STATE = {
     activeCharacter: "betawi" as CharacterSlug,
     activeConversationId: null,
     hasOnboarded: false,
+    pendingMessage: null,
+    failedMessage:  null,
 }
 
 // ── Store ──────────────────────────────────────────────────────
@@ -56,6 +64,8 @@ export const useChatStore = create<ChatStore>()(
                     set({ activeConversationId }),
 
                 setHasOnboarded: (hasOnboarded) => set({ hasOnboarded }),
+                setPendingMessage: (pendingMessage) => set({ pendingMessage }),
+                setFailedMessage:  (failedMessage)  => set({ failedMessage }),
 
                 reset: () => set(DEFAULT_STATE),
         }),

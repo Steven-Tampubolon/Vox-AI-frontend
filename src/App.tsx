@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import type { ReactNode } from "react";
+import { Toaster } from "sonner";
 import OnboardingPage from "./pages/OnboardingPage";
 import  ChatPage  from "./pages/ChatPage";
 import { useChatStore } from "./store/chatStore";
@@ -20,16 +21,30 @@ function RequireOnboarding({ children }: { children: ReactNode }) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<RootDirect />} />
-      <Route path="/onboarding" element={<OnboardingPage />} />
-      <Route path="/chat" 
-      element={
-        <RequireOnboarding>
-          <ChatPage />
-        </RequireOnboarding>
-      } />
-          
-    </Routes>
+    <>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: "#3C3C3E",
+            color: "#ffffff",
+            border: "1px solid #4A4A4C",
+          },
+          descriptionClassName: "!text-white !opacity-100",
+        }}
+      />
+      <Routes>
+        <Route path="/" element={<RootDirect />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/chat" 
+          element={
+            <RequireOnboarding>
+              <ChatPage />
+            </RequireOnboarding>
+          } 
+        />
+            
+      </Routes>
+    </>
   )
 }
