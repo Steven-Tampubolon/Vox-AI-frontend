@@ -27,20 +27,20 @@ export default function MessageBubble({
   const time = formatTime(message.created_at);
 
   return (
-    <div className={`flex items-end gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+    <div className={`flex items-end gap-3 w-full ${isUser ? "flex-row-reverse" : "flex-row"}`}>
 
       {/* Avatar */}
       <img
         src={isUser ? userAvatar : characterAvatar}
         alt={isUser ? userName : characterName}
-        className="w-9 h-9 rounded-full object-cover border shrink-0 self-end scale-x-[-1]"
+        className="w-9 h-9 rounded-full object-cover border shrink-0 self-baseline scale-x-[-1]"
       />
 
       {/* Bubble */}
       <div
         className={`max-w-125 px-5 py-3 rounded-[30px] text-white text-sm leading-relaxed
-                    ${isUser ? "bg-[#E35336]" : "bg-[#414141]"}`}
-      >
+        ${isUser ? "bg-[#E35336]" : "bg-[#414141]"}`}
+        >
         {isUser ? (
           <span>{message.content}</span>
         ) : (

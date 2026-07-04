@@ -34,7 +34,8 @@ export default function ChatWindow() {
   const { messages, isLoading: isLoadingMessages } = useMessages();
 
   // ← isSending tetap dari useChat, tapi hanya untuk TypingIndicator
-  const { sendMessage, isLoading: isSending } = useChat();
+  const isSending = useChatStore((s) => s.isSending)
+  const { sendMessage } = useChat()
 
   const bottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {

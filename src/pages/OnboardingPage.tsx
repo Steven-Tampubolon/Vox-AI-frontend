@@ -5,6 +5,7 @@ import StepProfile from "../components/onboarding/StepProfile";
 import StepWelcome from "../components/onboarding/StepWelcome";
 import { useChatStore } from "../store/chatStore";
 import { AnimatePresence, motion } from "framer-motion";
+import { fadeVariants } from "../lib/motion";
 
 type OnboardingStep = 1 | 2 | 3
 
@@ -22,12 +23,6 @@ export default function OnboardingPage() {
     function handleComplete() {
         navigate("/chat", { replace: true })
     }
-
-    const fadeVariants = {
-        initial: { opacity: 0, scale: 0.92 },
-        animate: { opacity: 1, scale: 1 },
-        exit: { opacity: 0, scale: 0.95 },
-    }   
 
     return (
         <div className="min-h-screen w-full bg-[] flex flex-col items-center justify-center py-16">

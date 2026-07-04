@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { useChatStore } from "../../store/chatStore";
 import { documentApi } from "../../api/document";
 import type { Document } from "../../types/api";
+import { logger } from "../../lib/logger";
 
 interface DocumentUploaderProps {
   onClose: () => void;
@@ -45,47 +46,50 @@ function IconUpload() {
 
 export default function DocumentUploader({ onClose }: DocumentUploaderProps) {
   const activeConversationId = useChatStore((s) => s.activeConversationId);
+  const setActiveConversationId = useChatStore((s) => s.setActiveConversationId);
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
 
   const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
-      if (!activeConversationId) {
-        setError("Kirim pesan dulu untuk memulai sesi, lalu upload dokumen.");
-        return;
-      }
-      if (!acceptedFiles.length) return;
+  async (acceptedFiles: File[]) => {
+    if (!acceptedFiles.length) return;
 
-      setIsUploading(true);
-      setError("");
+    setIsUploading(true);
+    setError("");
 
-      for (const file of acceptedFiles) {
-        try {
-          const res = await documentApi.upload(file, activeConversationId ?? undefined);
-          setUploadedFiles((prev) => [
-            ...prev,
-            {
-              doc: {
-                id: res.data.document_id,
-                conversation_id: res.data.conversation_id,
-                filename: res.data.filename,
-                chunk_count: res.data.chunk_count,
-                created_at: new Date().toISOString(),
-              },
-              filename: res.data.filename,
-            },
-          ]);
-        } catch {
-          setError(`Gagal upload ${file.name}. Coba lagi.`);
+    for (const file of acceptedFiles) {
+      try {
+        const res = await documentApi.upload(file, activeConversationId ?? undefined);
+
+        // simpan conversation_id dari response upload
+        if (res.data.conversation_id) {
+          setActiveConversationId(res.data.conversation_id);
         }
-      }
 
-      setIsUploading(false);
-    },
-    [activeConversationId]
-  );
+        setUploadedFiles((prev) => [
+          ...prev,
+          {
+            doc: {
+              id: res.data.document_id,
+              conversation_id: res.data.conversation_id,
+              filename: res.data.filename,
+              chunk_count: res.data.chunk_count,
+              created_at: new Date().toISOString(),
+            },
+            filename: res.data.filename,
+          },
+        ]);
+        logger.info("↑ UPLOAD DOCUMENT", `${res.data.filename} · ${res.data.chunk_count} chunks · conv: ${res.data.conversation_id}`)
+      } catch {
+        setError(`Gagal upload ${file.name}. Coba lagi.`);
+      }
+    }
+    setIsUploading(false);
+  },
+  [activeConversationId, setActiveConversationId]
+);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

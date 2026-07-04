@@ -4,40 +4,13 @@ import { useChatStore } from '../store/chatStore'
 import { chatApi } from '../api/chat'
 import type { CharacterSlug } from '../types/character'
 import type { ChatRequest, ChatResponse } from '../types/api'
+import { logger } from "../lib/logger";
 
 const CHAT_API_MAP: Record<CharacterSlug, (req: ChatRequest) => Promise<ChatResponse>> = {
   betawi:  (req) => chatApi.chatBetawi(req).then((r) => r.data),
   rag:     (req) => chatApi.chatRag(req).then((r) => r.data),
   git:     (req) => chatApi.chatGit(req).then((r) => r.data),
   explain: (req) => chatApi.chatExplain(req).then((r) => r.data),
-}
-
-const log = {
-  send:  (char: string, msg: string) =>
-    console.log(
-      "%c[VOX AI] %c→ SEND %c[%s]",
-      "color:#E35336;font-weight:bold",
-      "color:#4ADE80;font-weight:bold",
-      "color:#FACC15", char,
-      "\n Message:", msg
-    ),
-  reply: (char: string, reply: string, convId: string) =>
-    console.log(
-      "%c[VOX AI] %c← REPLY %c[%s]",
-      "color:#E35336;font-weight:bold",
-      "color:#60A5FA;font-weight:bold",
-      "color:#FACC15", char,
-      "\n Conversation:", convId,
-      "\n Reply:", reply
-    ),
-  error: (char: string, err: unknown) =>
-    console.error(
-      "%c[VOX AI] %c✕ ERROR %c[%s]",
-      "color:#E35336;font-weight:bold",
-      "color:#F87171;font-weight:bold",
-      "color:#FACC15", char,
-      "\n", err
-    ),
 }
 
 export function useChat() {
@@ -48,6 +21,7 @@ export function useChat() {
     setActiveConversationId,
     setPendingMessage,
     setFailedMessage,
+    setIsSending,
   } = useChatStore()
 
   const mutation = useMutation({
@@ -60,9 +34,10 @@ export function useChat() {
 
       // ← set ke store SEBELUM API call, bukan setelah
       setPendingMessage(message)
+      setIsSending(true)
       setFailedMessage(null)
 
-      log.send(activeCharacter, message)
+      logger.send(activeCharacter, message)
       return CHAT_API_MAP[activeCharacter](req)
     },
 
@@ -71,14 +46,11 @@ export function useChat() {
         setActiveConversationId(data.conversation_id)
       }
 
-      log.reply(activeCharacter, data.reply, data.conversation_id)
+      logger.reply(activeCharacter, data.reply, data.conversation_id)
 
       if (data.error) {
-        console.warn(
-          "%c[VOX AI] %c⚠ BACKEND WARNING",
-          "color:#E35336;font-weight:bold",
-          "color:#FBBF24;font-weight:bold",
-          "\n", data.error
+        logger.warning(
+          "BACKEND WARNING", data.error
         )
         toast.warning("Pesan terkirim tapi ada peringatan dari server", {
           description: data.error,
@@ -95,13 +67,15 @@ export function useChat() {
       }
 
       // ← hapus pending SETELAH pesan real sudah di cache
+      setIsSending(false)
       setPendingMessage(null)
     },
 
     onError: (error, message) => {
-      log.error(activeCharacter, error)
+      logger.error(activeCharacter, error)
 
       // ← pindahkan dari pending ke failed
+      setIsSending(false)
       setPendingMessage(null)
       setFailedMessage(message)
 

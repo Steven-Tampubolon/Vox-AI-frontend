@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CHARACTERS } from "../../constants/character";
 import { useChatStore } from "../../store/chatStore";
 import { useConversation } from "../../hooks/useConversations";
+import { logger } from "../../lib/logger";
 
 function MenuIcon({ className = "" }) {
   return (
@@ -44,32 +45,25 @@ export default function Sidebar() {
 
   function handleNewChat() {
     setActiveConversationId(null);
-    console.log(
+    logger.info(
       "%c[VOX AI] %c+ NEW CHAT",
-      "color:#E35336;font-weight:bold",
-      "color:#4ADE80;font-weight:bold",
-      `\n Character: ${activeCharacter}`
+      `Character: ${activeCharacter}`
     );
   }
 
   function handleSelectConversation(id: string) {
     setActiveConversationId(id);
-    console.log(
+    logger.info(
       "%c[VOX AI] %c↩ LOAD CONVERSATION",
-      "color:#E35336;font-weight:bold",
-      "color:#60A5FA;font-weight:bold",
-      `\n ID: ${id}`
+      `ID: ${id}`
     );
   }
 
   function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation();
     deleteConversation(id);
-    console.log(
+    logger.info(
       "%c[VOX AI] %c✕ DELETE CONVERSATION",
-      "color:#E35336;font-weight:bold",
-      "color:#F87171;font-weight:bold",
-      `\n ID: ${id}`
     );
   }
 
@@ -83,16 +77,16 @@ export default function Sidebar() {
   return (
     <aside
       className={`bg-[#252525] border-r border-[#444446] flex flex-col shrink-0
-                  overflow-hidden transition-[width] duration-300
-                  ${isOpen ? "w-65" : "w-18"}`}
-    >
+      overflow-hidden transition-[width] duration-300
+      ${isOpen ? "w-65" : "w-18"}`}
+      >
       {/* Toggle */}
       <button
         onClick={() => setIsOpen((v) => !v)}
         aria-label="Buka/tutup sidebar"
         className={`h-18 w-full flex items-center text-white shrink-0
-                    hover:text-[#E35336] transition-all duration-300 border-b border-[#444446]
-                    ${isOpen ? "justify-between px-5" : "justify-center"}`}
+        hover:text-[#E35336] transition-all duration-300
+        ${isOpen ? "justify-around px-5" : "justify-center"}`}
       >
         {isOpen && (
           <span className="text-white font-bold text-xl tracking-widest select-none">
@@ -100,7 +94,7 @@ export default function Sidebar() {
           </span>
         )}
         <MenuIcon
-          className={`transition-transform duration-300 ${isOpen ? "scale-x-[-1]" : ""}`}
+          className={`transition-transform duration-300 ${isOpen ? "hidden" : ""}`}
         />
       </button>
 
@@ -109,16 +103,16 @@ export default function Sidebar() {
         <button
           onClick={handleNewChat}
           className={`flex items-center gap-2 text-sm text-[#8D8D8D]
-                      hover:text-white hover:bg-[#333335] transition-colors rounded-xl
-                      ${isOpen ? "w-full px-3 py-2" : "w-10 h-10 justify-center"}`}
-        >
+          hover:text-white hover:bg-[#333335] transition-colors rounded-xl
+          ${isOpen ? "w-full px-3 py-2" : "w-10 h-10 justify-center"}`}
+          >
           <IconPlus />
           {isOpen && <span>New Chat</span>}
         </button>
       </div>
 
       {/* Karakter list */}
-      <div className={`shrink-0 px-3 pb-2 ${!isOpen && "flex flex-col items-center gap-1"}`}>
+      <div className={`shrink-0 px-3 pb-2 ${!isOpen && "flex flex-col items-center gap-2"}`}>
         {isOpen && (
           <p className="text-[10px] text-[#555558] uppercase tracking-wider px-2 pb-2">
             Karakter
@@ -132,11 +126,11 @@ export default function Sidebar() {
               onClick={() => setActiveCharacter(character.slug)}
               title={!isOpen ? character.name : undefined}
               className={`flex items-center gap-3 rounded-xl transition-colors
-                          ${isOpen ? "w-full px-3 py-2" : "w-10 h-10 justify-center mb-1"}
-                          ${isActive
-                            ? "bg-[#E35336] text-white"
-                            : "text-[#8D8D8D] hover:bg-[#333335] hover:text-white"
-                          }`}
+              ${isOpen ? "w-full px-3 py-2" : "w-10 h-10 justify-center mb-1"}
+              ${isActive
+              ? "bg-[#E35336] text-white"
+              : "text-[#8D8D8D] hover:bg-[#333335] hover:text-white"
+              }`}
             >
               <img
                 src={character.avatar}
@@ -171,12 +165,12 @@ export default function Sidebar() {
                     key={conv.id}
                     onClick={() => handleSelectConversation(conv.id)}
                     className={`group flex items-center justify-between gap-2 px-3 py-2
-                                rounded-xl cursor-pointer transition-colors
-                                ${isActiveConv
-                                  ? "bg-[#3C3C3E] text-white"
-                                  : "text-[#8D8D8D] hover:bg-[#333335] hover:text-white"
-                                }`}
-                  >
+                    rounded-xl cursor-pointer transition-colors
+                    ${isActiveConv
+                    ? "bg-[#3C3C3E] text-white"
+                    : "text-[#8D8D8D] hover:bg-[#333335] hover:text-white"
+                    }`}
+                    >
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">
                         {conv.title || "Percakapan baru"}
@@ -190,9 +184,9 @@ export default function Sidebar() {
                       onClick={(e) => handleDelete(e, conv.id)}
                       disabled={isDeleting}
                       className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity
-                                 text-[#666668] hover:text-[#E35336] p-1 rounded-lg
-                                 hover:bg-[#E35336]/10 disabled:opacity-30"
-                    >
+                      text-[#666668] hover:text-[#E35336] p-1 rounded-lg
+                      hover:bg-[#E35336]/10 disabled:opacity-30"
+                      >
                       <IconTrash />
                     </button>
                   </div>
@@ -209,7 +203,7 @@ export default function Sidebar() {
       {/* User profile */}
       <div
         className={`shrink-0 border-t border-[#444446] px-3 py-4
-                    ${isOpen ? "flex items-center gap-3" : "flex justify-center"}`}
+        ${isOpen ? "flex items-center gap-3" : "flex justify-center"}`}
       >
         {useChatStore.getState().user?.avatar && (
           <img

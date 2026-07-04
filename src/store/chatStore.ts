@@ -33,6 +33,11 @@ interface ChatStore {
     failedMessage:  string | null
     setPendingMessage: (msg: string | null) => void
     setFailedMessage:  (msg: string | null) => void
+
+    isSending: boolean
+    setIsSending: (value: boolean) => void
+    
+    
 }
 
 // ── Default values ─────────────────────────────────────────────
@@ -43,6 +48,7 @@ const DEFAULT_STATE = {
     hasOnboarded: false,
     pendingMessage: null,
     failedMessage:  null,
+    isSending: false,
 }
 
 // ── Store ──────────────────────────────────────────────────────
@@ -66,6 +72,7 @@ export const useChatStore = create<ChatStore>()(
                 setHasOnboarded: (hasOnboarded) => set({ hasOnboarded }),
                 setPendingMessage: (pendingMessage) => set({ pendingMessage }),
                 setFailedMessage:  (failedMessage)  => set({ failedMessage }),
+                setIsSending: (isSending) => set({ isSending }),
 
                 reset: () => set(DEFAULT_STATE),
         }),

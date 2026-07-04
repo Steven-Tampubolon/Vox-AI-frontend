@@ -1,9 +1,10 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 import OnboardingPage from "./pages/OnboardingPage";
 import  ChatPage  from "./pages/ChatPage";
 import { useChatStore } from "./store/chatStore";
+import { AnimatePresence } from "framer-motion";
 
 function RootDirect() {
   const hasOnboarded = useChatStore((s) => s.hasOnboarded)
@@ -20,6 +21,7 @@ function RequireOnboarding({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+  const location = useLocation()
   return (
     <>
       <Toaster
@@ -33,7 +35,8 @@ export default function App() {
           descriptionClassName: "!text-white !opacity-100",
         }}
       />
-      <Routes>
+      <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         <Route path="/" element={<RootDirect />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/chat" 
@@ -45,6 +48,8 @@ export default function App() {
         />
             
       </Routes>
+
+      </AnimatePresence>
     </>
   )
 }
