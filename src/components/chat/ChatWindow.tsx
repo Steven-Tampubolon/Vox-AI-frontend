@@ -10,7 +10,7 @@ function TypingIndicator({ avatar, name }: { avatar: string; name: string }) {
     <div className="flex items-end gap-3">
       <img src={avatar} alt={name}
         className="w-9 h-9 rounded-full object-cover shrink-0" />
-      <div className="bg-[#414141] px-5 py-3.5 rounded-[30px]">
+      <div className=" px-5 py-3.5 rounded-[30px]">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 bg-[#8D8D8D] rounded-full animate-bounce [animation-delay:0ms]" />
           <span className="w-2 h-2 bg-[#8D8D8D] rounded-full animate-bounce [animation-delay:150ms]" />
@@ -72,10 +72,14 @@ export default function ChatWindow() {
       <div className="w-full max-w-190 px-4 py-6 flex flex-col gap-10">
 
         {isLoadingMessages && (
-          <div className="flex items-center gap-1 text-[#8D8D8D] px-2 pt-4">
-            <span className="animate-bounce">●</span>
-            <span className="animate-bounce [animation-delay:75ms]">●</span>
-            <span className="animate-bounce [animation-delay:150ms]">●</span>
+          <div className="flex items-end gap-3">
+            <div className=" px-5 py-3.5 rounded-[30px]">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 bg-[#8D8D8D] rounded-full animate-bounce [animation-delay:0ms]" />
+                <span className="w-2 h-2 bg-[#8D8D8D] rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-2 h-2 bg-[#8D8D8D] rounded-full animate-bounce [animation-delay:300ms]" />
+              </div>
+            </div>
           </div>
         )}
 

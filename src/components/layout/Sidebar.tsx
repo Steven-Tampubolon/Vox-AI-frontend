@@ -1,37 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { Plus, Trash2, Pencil, PanelLeft } from "lucide-react";
 import { CHARACTERS } from "../../constants/character";
 import { useChatStore } from "../../store/chatStore";
 import { useConversation } from "../../hooks/useConversations";
 import { logger } from "../../lib/logger";
+import { cn } from "../../lib/utils";
 
-function MenuIcon({ className = "" }) {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-      xmlns="http://www.w3.org/2000/svg" className={className}>
-      <rect x="3" y="4" width="18" height="16" rx="3"
-        stroke="currentColor" strokeWidth="2" />
-      <path d="M10 4V20" stroke="currentColor" strokeWidth="2" fill="currentColor" />
-    </svg>
-  );
-}
-
-function IconPlus() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path d="M12 5v14M5 12h14" stroke="currentColor"
-        strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function IconTrash() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-      <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +15,10 @@ export default function Sidebar() {
   const activeConversationId  = useChatStore((s) => s.activeConversationId);
   const setActiveConversationId = useChatStore((s) => s.setActiveConversationId);
 
-  const { conversations, deleteConversation, isDeleting } = useConversation();
+  const { conversations, deleteConversation, isDeleting, renameConversation, isRenaming } = useConversation();
+
+  const [renamingId, setRenamingId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState("")
 
   function handleNewChat() {
     setActiveConversationId(null);
@@ -74,26 +51,48 @@ export default function Sidebar() {
     });
   }
 
+  function handleRenameStart(e: React.MouseEvent, conv: { id: string; title: string }) {
+    e.stopPropagation()
+    setRenamingId(conv.id)
+    setRenameValue(conv.title || "")
+  }
+
+  function handleRenameSubmit(id: string) {
+    const trimmed = renameValue.trim()
+    if (trimmed) {
+      renameConversation({ id, title: trimmed })
+      logger.info("✎ RENAME CONVERSATION", `ID: ${id} → "${trimmed}"`)
+    }
+    setRenamingId(null)
+  }
+
+  function handleRenameCancel() {
+    setRenamingId(null)
+    setRenameValue("")
+  }
+
   return (
     <aside
-      className={`bg-[#252525] border-r border-[#444446] flex flex-col shrink-0
-      overflow-hidden transition-[width] duration-300
-      ${isOpen ? "w-65" : "w-18"}`}
+      className={cn("bg-[#252525] border-r border-[#444446] flex flex-col shrink-0", 
+        "overflow-hidden transition-[width] duration-300", 
+        isOpen ? "w-65" : "w-18")}
       >
       {/* Toggle */}
       <button
         onClick={() => setIsOpen((v) => !v)}
         aria-label="Buka/tutup sidebar"
-        className={`h-18 w-full flex items-center text-white shrink-0
-        hover:text-[#E35336] transition-all duration-300
-        ${isOpen ? "justify-around px-5" : "justify-center"}`}
+        className={cn(
+        "h-18 w-full flex items-center text-white shrink-0",
+        "hover:text-[#E35336] transition-all duration-300",
+        isOpen ? "justify-around px-5" : "justify-center"
+)}
       >
         {isOpen && (
           <span className="text-white font-bold text-xl tracking-widest select-none">
             VOX AI
           </span>
         )}
-        <MenuIcon
+        <PanelLeft
           className={`transition-transform duration-300 ${isOpen ? "hidden" : ""}`}
         />
       </button>
@@ -106,7 +105,7 @@ export default function Sidebar() {
           hover:text-white hover:bg-[#333335] transition-colors rounded-xl
           ${isOpen ? "w-full px-3 py-2" : "w-10 h-10 justify-center"}`}
           >
-          <IconPlus />
+          <Plus />
           {isOpen && <span>New Chat</span>}
         </button>
       </div>
@@ -125,13 +124,14 @@ export default function Sidebar() {
               key={character.slug}
               onClick={() => setActiveCharacter(character.slug)}
               title={!isOpen ? character.name : undefined}
-              className={`flex items-center gap-3 rounded-xl transition-colors
-              ${isOpen ? "w-full px-3 py-2" : "w-10 h-10 justify-center mb-1"}
-              ${isActive
+              className={cn(
+              "flex items-center gap-3 rounded-xl transition-colors",
+              isOpen ? "w-full px-3 py-2" : "w-10 h-10 justify-center mb-1",
+              isActive
               ? "bg-[#E35336] text-white"
               : "text-[#8D8D8D] hover:bg-[#333335] hover:text-white"
-              }`}
-            >
+              )}
+              >
               <img
                 src={character.avatar}
                 alt={character.name}
@@ -160,6 +160,7 @@ export default function Sidebar() {
             <div className="flex flex-col gap-1">
               {conversations.map((conv) => {
                 const isActiveConv = conv.id === activeConversationId;
+                const isRenaming_ = renamingId === conv.id
                 return (
                   <div
                     key={conv.id}
@@ -172,23 +173,57 @@ export default function Sidebar() {
                     }`}
                     >
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">
-                        {conv.title || "Percakapan baru"}
-                      </p>
+                      {/* Mode rename: input inline */}
+                      {isRenaming_ ? (
+                        <input 
+                        autoFocus
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleRenameSubmit(conv.id)
+                          if (e.key == "Escape") handleRenameCancel()
+                        }}
+                        onBlur={() => handleRenameSubmit(conv.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full bg-[#252525] text-white text-xs px-2 py-0.5
+                        rounded-md outline-none border border-[#E35336]" 
+                        />
+                      ) : (
+
+                        <p className="text-xs font-medium truncate">
+                          {conv.title || "Percakapan baru"}
+                        </p>
+                      )}
                       <p className="text-[10px] text-[#555558] mt-0.5">
                         {formatDate(conv.updated_at)}
                       </p>
                     </div>
 
-                    <button
-                      onClick={(e) => handleDelete(e, conv.id)}
-                      disabled={isDeleting}
-                      className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity
-                      text-[#666668] hover:text-[#E35336] p-1 rounded-lg
-                      hover:bg-[#E35336]/10 disabled:opacity-30"
-                      >
-                      <IconTrash />
-                    </button>
+                    {/* Action buttons — muncul saat hover */}
+                    {!isRenaming_ && (
+                      <div className="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => handleRenameStart(e, conv)}
+                          disabled={isRenaming}
+                          className="text-[#666668] hover:text-white p-1 rounded-lg
+                          hover:bg-white/10 disabled:opacity-30"
+                          >
+                          <Pencil />
+                        </button>
+
+                        <button
+                          onClick={(e) => handleDelete(e, conv.id)}
+                          disabled={isDeleting}
+                          className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity
+                          text-[#666668] hover:text-[#E35336] p-1 rounded-lg
+                          hover:bg-[#E35336]/10 disabled:opacity-30"
+                          >
+                          <Trash2 />
+                        </button>
+                      </div>
+
+                    )}
+
                   </div>
                 );
               })}

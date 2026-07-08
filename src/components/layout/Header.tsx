@@ -1,5 +1,6 @@
 import { CHARACTERS } from "../../constants/character";
 import { useChatStore } from "../../store/chatStore";
+import { cn } from "../../lib/utils";
 
 export default function Header() {
     const activeCharacter = useChatStore((s) => s.activeCharacter)
@@ -8,20 +9,24 @@ export default function Header() {
     const character = CHARACTERS.find((c) => c.slug === activeCharacter)
 
     return (
-        <header className="h-22.5 bg-[#252525] border-b border-[#444446] flex items-center justify-between shrink-0 px-6">
+        <header 
+        className={cn(
+            "h-22.5 bg-[#252525] border-b border-[#444446]",
+            "flex items-center justify-between shrink-0 px-6"
+            )}>
                 <div className="flex items-center gap-3">
                     {character && (
                         <>
-                        <img 
-                        src={character.avatar} 
-                        alt={character.name}
-                        className="w-13.75 h-13.75 rounded-full object-cover scale-x-[-1] border-[3px]"
-                        style={{ borderColor: character.color }} 
-                        />
-                        <h3 className="text-white text-lg font-medium">
-                            {character.name}
+                            <img 
+                            src={character.avatar} 
+                            alt={character.name}
+                            className="w-13.75 h-13.75 rounded-full object-cover scale-x-[-1] border-[3px]"
+                            style={{ borderColor: character.color }} 
+                            />
+                            <h3 className="text-white text-lg font-medium">
+                                {character.name}
 
-                        </h3>
+                            </h3>
                         </>
                     )}
 
