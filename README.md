@@ -1,5 +1,9 @@
 # 🦊 VOX AI Frontend
 
+![Lint & Build](https://github.com/Steven-Tampubolon/vox-ai-frontend/actions/workflows/lint.yml/badge.svg)
+![Docker Publish](https://github.com/Steven-Tampubolon/vox-ai-frontend/actions/workflows/docker-publish.yml/badge.svg)
+![GHCR](https://img.shields.io/badge/ghcr.io-vox--ai--frontend-blue?logo=docker)
+
 Frontend untuk aplikasi chatbot multi-karakter **VOX AI**, dibangun dengan React 19 + TypeScript + Vite.
 
 ---
@@ -170,6 +174,8 @@ chatStore (Zustand)
 | Database | SQLite |
 | Rate Limit | 10 req/menit |
 
+Repo backend: [vox-ai](https://github.com/Steven-Tampubolon/vox-ai)
+
 ### Endpoints
 
 ```
@@ -188,7 +194,7 @@ GET  /api/v1/conversations/:id/messages
 
 ---
 
-## Menjalankan Project
+## Menjalankan Project (Development)
 
 ```bash
 # Install dependencies
@@ -203,14 +209,43 @@ bun run build
 
 Pastikan backend sudah berjalan di `http://localhost:8080` sebelum menjalankan frontend.
 
----
-
-## Environment
+### Environment
 
 Buat file `.env` di root project:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080/api/v1
+```
+
+---
+
+## 🐳 Menjalankan via Docker (tanpa clone, untuk end-user)
+
+Image resmi di-publish otomatis ke GHCR setiap kali ada rilis versi (`vX.Y.Z`).
+
+```bash
+docker pull ghcr.io/steven-tampubolon/vox-ai-frontend:latest
+docker run -p 3000:80 ghcr.io/steven-tampubolon/vox-ai-frontend:latest
+```
+
+Untuk menjalankan **frontend + backend sekaligus** tanpa clone repo sama sekali,
+gunakan `docker-compose.yml` yang tersedia di folder [`deploy/`](https://github.com/Steven-Tampubolon/vox-ai/tree/main/deploy)
+pada repo backend, atau download langsung dari halaman
+[**Releases**](https://github.com/Steven-Tampubolon/vox-ai/releases) versi terbaru.
+
+---
+
+## CI/CD
+
+| Workflow | Trigger | Fungsi |
+|---|---|---|
+| `lint.yml` | Setiap `push` / `pull_request` | ESLint + type-check + build check |
+| `docker-publish.yml` | Push tag `v*.*.*` | Build & push image ke `ghcr.io/steven-tampubolon/vox-ai-frontend` |
+
+Rilis versi baru:
+```bash
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 ---
