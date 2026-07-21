@@ -36,6 +36,13 @@ interface ChatStore {
 
     isSending: boolean
     setIsSending: (value: boolean) => void
+
+        // ── Streaming (SSE) ──────────────────────────────────────
+    // Teks jawaban AI yang lagi "diketik" secara realtime, sebelum
+    // pesan final tersimpan di cache React Query (messages)
+    streamingText: string
+    appendStreamingChunk: (chunk: string) => void
+    resetStreamingText: () => void
     
     
 }
@@ -49,6 +56,7 @@ const DEFAULT_STATE = {
     pendingMessage: null,
     failedMessage:  null,
     isSending: false,
+    streamingText: "",
 }
 
 // ── Store ──────────────────────────────────────────────────────
@@ -64,6 +72,7 @@ export const useChatStore = create<ChatStore>()(
                 set({
                     activeCharacter,
                     activeConversationId: null, // reset conversation saat ganti character
+                    streamingText: "",
                 }),
 
                 setActiveConversationId: (activeConversationId) =>
@@ -73,6 +82,11 @@ export const useChatStore = create<ChatStore>()(
                 setPendingMessage: (pendingMessage) => set({ pendingMessage }),
                 setFailedMessage:  (failedMessage)  => set({ failedMessage }),
                 setIsSending: (isSending) => set({ isSending }),
+
+                appendStreamingChunk: (chunk) =>
+                    set((state) => ({ streamingText: state.streamingText + chunk })),
+
+                resetStreamingText: () => set({ streamingText: "" }),
 
                 reset: () => set(DEFAULT_STATE),
         }),

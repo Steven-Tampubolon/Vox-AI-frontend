@@ -21,6 +21,33 @@ function TypingIndicator({ avatar, name }: { avatar: string; name: string }) {
   );
 }
 
+
+// Bubble jawaban AI yang lagi "diketik" realtime dari SSE
+function StreamingBubble({
+  avatar,
+  name,
+  text,
+}: {
+  avatar: string
+  name: string
+  text: string
+}) {
+  return (
+    <div className="flex items-end gap-3">
+      <img src={avatar} alt={name}
+      className="w-9 h-9 rounded-full object-cover shrink-0" />
+      <div className="px-5 py-3.5 rounded-[30px] bg-[#414141] text-white text-base leading-6 whitespace-pre-wrap max-w-150">
+        {text}
+        {/* Cursor effect */}
+        <span className="inline-block w-0.5 h-4 bg-white ml-0.5 align-middle animate-pulse" />
+
+      </div>
+
+    </div>
+  )
+}
+
+
 export default function ChatWindow() {
   const activeCharacter      = useChatStore((s) => s.activeCharacter);
   const activeConversationId = useChatStore((s) => s.activeConversationId);
@@ -29,6 +56,9 @@ export default function ChatWindow() {
   // ← baca dari store, bukan dari useChat()
   const pendingMessage = useChatStore((s) => s.pendingMessage);
   const failedMessage  = useChatStore((s) => s.failedMessage);
+
+  // ← state baru: teks yang lagi streaming
+  const streamingText = useChatStore((s) => s.streamingText)
 
   const character = CHARACTERS.find((c) => c.slug === activeCharacter);
   const { messages, isLoading: isLoadingMessages } = useMessages();
@@ -40,7 +70,7 @@ export default function ChatWindow() {
   const bottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, pendingMessage, failedMessage]);
+  }, [messages, pendingMessage, failedMessage, streamingText]); // tambahkan streamingText()
 
   // ── Empty state ────────────────────────────────────────────────
   if (
@@ -112,9 +142,18 @@ export default function ChatWindow() {
           />
         )}
 
-        {/* Typing indicator dengan avatar */}
+        {/*
+          isSending punya 2 fase:
+          1. Belum ada chunk masuk sama sekali (streamingText kosong) →
+             tampilkan TypingIndicator (dots) - AI masih "mikir"/retrieval
+          2. Chunk pertama sudah masuk (streamingText terisi) →
+             ganti ke StreamingBubble - teks tampil realtime + cursor berkedip
+        */}
+        
         {isSending && character && (
-          <TypingIndicator avatar={character.avatar} name={character.name} />
+          streamingText
+          ? <StreamingBubble avatar={character.avatar} name={character.name} text={streamingText} />
+          : <TypingIndicator avatar={character.avatar} name={character.name} />
         )}
 
         {/* Failed message + retry */}
