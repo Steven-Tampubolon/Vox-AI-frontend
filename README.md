@@ -18,7 +18,7 @@ Frontend untuk aplikasi chatbot multi-karakter **VOX AI**, dibangun dengan React
 | Styling | Tailwind CSS v4 |
 | State Management | Zustand + persist |
 | Server State | TanStack Query v5 |
-| HTTP Client | Axios |
+| HTTP Client | Axios (REST) + Fetch API (SSE streaming untuk chat) |
 | Animasi | Framer Motion |
 | Markdown | react-markdown |
 | File Upload | react-dropzone |
@@ -58,7 +58,7 @@ src/
 │       ├── MessageBubble.tsx  # Bubble pesan AI/user
 │       └── DocumentUploader.tsx # Upload PDF/TXT untuk RAG
 ├── hooks/
-│   ├── useChat.ts             # Kirim pesan + optimistic UI
+│   ├── useChat.ts             # Kirim pesan streaming (SSE), stop, + optimistic UI
 │   ├── useMessages.ts         # Fetch pesan dalam conversation
 │   ├── useConversation.ts     # List, delete, rename conversation
 │   └── useCharacter.ts        # Fetch metadata karakter
@@ -66,7 +66,7 @@ src/
 │   └── chatStore.ts           # Global state (Zustand + persist)
 ├── api/
 │   ├── client.ts              # Axios base instance
-│   ├── chat.ts                # Endpoint 4 karakter
+│   ├── chat.ts                # SSE streaming client untuk 4 karakter
 │   ├── conversation.ts        # CRUD conversation
 │   ├── document.ts            # Upload dokumen RAG
 │   └── character.ts           # List karakter
@@ -118,11 +118,20 @@ Bubble optimis langsung muncul (pendingMessage)
     ↓
 Typing indicator (3 dots + avatar karakter)
     ↓
-Backend balas → pesan real masuk
+Token pertama tiba dari SSE
     ↓
-Bubble optimis hilang → bubble asli muncul
+Typing indicator berganti jadi streaming bubble
+(teks muncul bertahap + cursor berkedip di ujung)
+    ↓
+Stream selesai → bubble streaming hilang → bubble asli dari DB muncul
 
-Jika error:
+User bisa klik tombol Stop kapan saja selama streaming:
+    ↓
+Koneksi SSE diputus (AbortController)
+    ↓
+Reply parsial (yang sempat tampil) tetap tersimpan ke history
+
+Jika error (bukan karena Stop):
     ↓
 Bubble tetap tampil sebagai failedMessage
 Tombol "Coba lagi" muncul di bawah bubble
@@ -159,7 +168,8 @@ chatStore (Zustand)
 ├── activeConversationId → conversation aktif (tidak persist)
 ├── pendingMessage    → pesan yang sedang dikirim (tidak persist)
 ├── failedMessage     → pesan yang gagal (tidak persist)
-└── isSending         → status typing indicator (tidak persist)
+├── isSending         → status typing indicator (tidak persist)
+└── streamingText     → teks jawaban AI yang sedang di-stream (tidak persist)
 ```
 
 ---
@@ -181,10 +191,10 @@ Repo backend: [vox-ai](https://github.com/Steven-Tampubolon/vox-ai)
 ```
 GET  /health
 GET  /api/v1/characters
-POST /api/v1/chat/betawi
-POST /api/v1/chat/rag
-POST /api/v1/chat/git
-POST /api/v1/chat/explain
+POST /api/v1/chat/betawi    ← SSE (text/event-stream)
+POST /api/v1/chat/rag       ← SSE (text/event-stream)
+POST /api/v1/chat/git       ← SSE (text/event-stream)
+POST /api/v1/chat/explain   ← SSE (text/event-stream)
 POST /api/v1/document/upload
 GET  /api/v1/conversations
 DELETE /api/v1/conversations/:id
@@ -261,3 +271,17 @@ Semua aktivitas API tercatat di browser console dengan warna:
 🟡 ⚠ WARNING backend warning (200 tapi ada field error)
 🟣 ℹ INFO    aksi UI (new chat, load conversation, delete)
 ```
+---
+
+## 📜 Changelog
+
+### v1.1.0
+- **feat**: chat sekarang streaming realtime via SSE, bukan menunggu
+  jawaban penuh
+- **feat**: tombol Stop untuk menghentikan balasan AI yang sedang berjalan
+- **feat**: cursor berkedip di ujung teks selama streaming berlangsung
+- `chat.ts` diganti total dari Axios ke `fetch()` + `ReadableStream`
+  (Axios tidak bisa membaca streaming body secara native di browser)
+
+### v1.0.0
+- Rilis awal
