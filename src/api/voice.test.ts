@@ -29,7 +29,7 @@ describe("voiceApi.sendVoiceChat", () => {
         mockPost.mockResolvedValue(fakeResponse)
 
         const blob = new Blob(["audio"], { type: "audio/ogg" })
-        const result = await voiceApi.sendVoiceChat(blob, "audio/ogg;codec=opus", "betawi", "conv-123")
+        const result = await voiceApi.sendVoiceChat(blob, "audio/ogg;codecs=opus", "betawi", "conv-123")
 
         const [endpoint, formData] = mockPost.mock.calls[0]
         expect(endpoint).toBe("/voice/chat")

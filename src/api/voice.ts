@@ -2,6 +2,8 @@ import { api } from "./client";
 import type { CharacterSlug } from "../types/character";
 import type { VoiceChatResponse } from "../types/api";
 
+const VOICE_CHAT_TIMEOUT_MS = 90_000
+
 export const voiceApi = {
     async sendVoiceChat (
         blob: Blob,
@@ -17,7 +19,9 @@ export const voiceApi = {
             formData.append("conversation_id", conversationId)
         }
 
-        const res = await api.post<VoiceChatResponse>("/voice/chat", formData)
+        const res = await api.post<VoiceChatResponse>("/voice/chat", formData, {
+            timeout: VOICE_CHAT_TIMEOUT_MS,
+        })
         return res.data
     },
 }
