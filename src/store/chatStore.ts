@@ -37,6 +37,10 @@ interface ChatStore {
     isSending: boolean
     setIsSending: (value: boolean) => void
 
+    // Voice chat sending state
+    isVoiceSending: boolean
+    setIsVoiceSending: (value: boolean) => void
+
         // ── Streaming (SSE) ──────────────────────────────────────
     // Teks jawaban AI yang lagi "diketik" secara realtime, sebelum
     // pesan final tersimpan di cache React Query (messages)
@@ -56,6 +60,7 @@ const DEFAULT_STATE = {
     pendingMessage: null,
     failedMessage:  null,
     isSending: false,
+    isVoiceSending: false,
     streamingText: "",
 }
 
@@ -82,6 +87,7 @@ export const useChatStore = create<ChatStore>()(
                 setPendingMessage: (pendingMessage) => set({ pendingMessage }),
                 setFailedMessage:  (failedMessage)  => set({ failedMessage }),
                 setIsSending: (isSending) => set({ isSending }),
+                setIsVoiceSending: (isVoiceSending) => set({ isVoiceSending }),
 
                 appendStreamingChunk: (chunk) =>
                     set((state) => ({ streamingText: state.streamingText + chunk })),
