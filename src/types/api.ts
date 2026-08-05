@@ -73,3 +73,17 @@ export interface DeleteConversationResponse {
 export interface RenameConversationRequest {
     title: string
 }
+
+export interface VoiceChatRequest {
+  file: Blob
+  character: CharacterSlug
+  conversation_id?: string
+}
+
+export interface VoiceChatResponse {
+  user_text: string
+  ai_text: string
+  audio_base64: string
+  mime_type: string   // "audio/wav"
+  conversation_id: string
+}
