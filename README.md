@@ -59,6 +59,7 @@ src/
 │       └── DocumentUploader.tsx # Upload PDF/TXT untuk RAG
 ├── hooks/
 │   ├── useChat.ts             # Kirim pesan streaming (SSE), stop, + optimistic UI
+│   ├── useVoiceChat.ts        # Rekam suara, kirim ke /voice/chat, putar balasan audio
 │   ├── useMessages.ts         # Fetch pesan dalam conversation
 │   ├── useConversation.ts     # List, delete, rename conversation
 │   └── useCharacter.ts        # Fetch metadata karakter
@@ -67,6 +68,7 @@ src/
 ├── api/
 │   ├── client.ts              # Axios base instance
 │   ├── chat.ts                # SSE streaming client untuk 4 karakter
+│   ├── voice.ts               # Kirim FormData audio ke /voice/chat
 │   ├── conversation.ts        # CRUD conversation
 │   ├── document.ts            # Upload dokumen RAG
 │   └── character.ts           # List karakter
@@ -140,6 +142,40 @@ Toast error muncul (503 / network / lainnya)
 
 ---
 
+## Voice Chat Flow
+
+```
+Idle → klik tombol mic
+    ↓
+Minta izin mikrofon (getUserMedia)
+(jika ditolak → toast error, balik ke Idle)
+    ↓ 
+Merekam (MediaRecorder, format ogg/opus atau webm)
+countdown 10 detik, tampil di sebelah tombol mic
+user bisa tap mic buat stop lebih cepat, atau auto-stop di 0
+    ↓ 
+Kirim FormData (file audio + character + conversation_id) ke POST /voice/chat
+timeout 90s (pipeline lebih lama dari chat teks biasa)
+    ↓ 
+Backend proses: Speech-to-Text → LLM → Text-to-Speech
+(jika gagal/timeout → toast error, balik ke Idle)
+    ↓ 
+Response diterima: user_text, ai_text, audio_base64, conversation_id
+    ↓
+conversation_id disimpan ke store + cache messages di-invalidate
+    ↓
+Audio balasan diputar otomatis (data: URL dari base64)
+    ↓
+Selesai → balik ke Idle (tombol "↺ Putar ulang" muncul buat replay)
+
+Selama voice chat berlangsung (recording/sending/playing):
+input teks & tombol upload dokumen otomatis disable
+(mutual exclusion — tidak bisa voice & text bersamaan)
+```
+
+
+---
+
 ## RAG Flow
 
 ```
@@ -169,6 +205,7 @@ chatStore (Zustand)
 ├── pendingMessage    → pesan yang sedang dikirim (tidak persist)
 ├── failedMessage     → pesan yang gagal (tidak persist)
 ├── isSending         → status typing indicator (tidak persist)
+├── isVoiceSending    → status kirim/proses voice chat (tidak persist)
 └── streamingText     → teks jawaban AI yang sedang di-stream (tidak persist)
 ```
 
@@ -195,6 +232,7 @@ POST /api/v1/chat/betawi    ← SSE (text/event-stream)
 POST /api/v1/chat/rag       ← SSE (text/event-stream)
 POST /api/v1/chat/git       ← SSE (text/event-stream)
 POST /api/v1/chat/explain   ← SSE (text/event-stream)
+POST /api/v1/voice/chat     ← multipart/form-data (file audio)
 POST /api/v1/document/upload
 GET  /api/v1/conversations
 DELETE /api/v1/conversations/:id
@@ -274,6 +312,16 @@ Semua aktivitas API tercatat di browser console dengan warna:
 ---
 
 ## 📜 Changelog
+
+### v1.2.0
+- **feat**: voice chat — rekam suara (max 10 detik), kirim ke
+  `/voice/chat`, balasan AI diputar otomatis sebagai audio
+- Tombol mic 5-state: idle, recording (dengan countdown), sending,
+  playing, disabled
+- Tombol "↺ Putar ulang" untuk memutar ulang balasan audio terakhir
+- Voice & text chat saling mengunci (tidak bisa jalan bersamaan)
+- Timeout khusus 90s untuk endpoint voice (pipeline STT→LLM→TTS
+  lebih lambat dari chat teks biasa yang pakai timeout default 30s)
 
 ### v1.1.0
 - **feat**: chat sekarang streaming realtime via SSE, bukan menunggu
