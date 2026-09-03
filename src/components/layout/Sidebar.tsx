@@ -14,6 +14,7 @@ export default function Sidebar() {
   const setActiveCharacter    = useChatStore((s) => s.setActiveCharacter);
   const activeConversationId  = useChatStore((s) => s.activeConversationId);
   const setActiveConversationId = useChatStore((s) => s.setActiveConversationId);
+  const user = useChatStore((s) => s.user);
 
   const { conversations, deleteConversation, isDeleting, renameConversation, isRenaming } = useConversation();
 
@@ -23,7 +24,7 @@ export default function Sidebar() {
   function handleNewChat() {
     setActiveConversationId(null);
     logger.info(
-      "%c[VOX AI] %c+ NEW CHAT",
+      "[VOX AI] %c+ NEW CHAT",
       `Character: ${activeCharacter}`
     );
   }
@@ -31,7 +32,7 @@ export default function Sidebar() {
   function handleSelectConversation(id: string) {
     setActiveConversationId(id);
     logger.info(
-      "%c[VOX AI] %c↩ LOAD CONVERSATION",
+      "[VOX AI] %c↩ LOAD CONVERSATION",
       `ID: ${id}`
     );
   }
@@ -40,7 +41,7 @@ export default function Sidebar() {
     e.stopPropagation();
     deleteConversation(id);
     logger.info(
-      "%c[VOX AI] %c✕ DELETE CONVERSATION",
+      "[VOX AI] %c✕ DELETE CONVERSATION",
     );
   }
 
@@ -181,7 +182,7 @@ export default function Sidebar() {
                         onChange={(e) => setRenameValue(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") handleRenameSubmit(conv.id)
-                          if (e.key == "Escape") handleRenameCancel()
+                          if (e.key === "Escape") handleRenameCancel()
                         }}
                         onBlur={() => handleRenameSubmit(conv.id)}
                         onClick={(e) => e.stopPropagation()}
@@ -240,7 +241,7 @@ export default function Sidebar() {
         className={`shrink-0 border-t border-[#444446] px-3 py-4
         ${isOpen ? "flex items-center gap-3" : "flex justify-center"}`}
       >
-        {useChatStore.getState().user?.avatar && (
+        {user?.avatar && (
           <img
             src={useChatStore.getState().user!.avatar}
             alt={useChatStore.getState().user!.name}

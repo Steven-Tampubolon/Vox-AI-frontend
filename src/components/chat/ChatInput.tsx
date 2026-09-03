@@ -109,7 +109,7 @@ export default function ChatInput() {
         disabled={isLoading}
         aria-label="Upload dokumen"
         className={cn(
-        "shrink-0 w8 h-8 rounded-lg flex items-center justify-center transition-colors mb-0.5",
+        "shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors mb-0.5",
         "disabled:opacity-40 disabled:cursor-not-allowed",
         showUploader
         ? "text-[#E35336] bg-[#E35336]/10"

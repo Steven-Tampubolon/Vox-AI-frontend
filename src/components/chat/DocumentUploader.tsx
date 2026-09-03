@@ -54,8 +54,9 @@ export default function DocumentUploader({ onClose }: DocumentUploaderProps) {
           },
         ]);
         logger.info("↑ UPLOAD DOCUMENT", `${res.data.filename} · ${res.data.chunk_count} chunks · conv: ${res.data.conversation_id}`)
-      } catch {
-        setError(`Gagal upload ${file.name}. Coba lagi.`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : `Gagal upload ${file.name}. Coba lagi nanti`;
+        setError(msg);
       }
     }
     setIsUploading(false);

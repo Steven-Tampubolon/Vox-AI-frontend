@@ -101,16 +101,8 @@ export default function ChatWindow() {
     <section className="flex-1 w-full min-w-0 overflow-y-auto flex justify-center">
       <div className="w-full max-w-190 px-4 py-6 flex flex-col gap-10">
 
-        {isLoadingMessages && (
-          <div className="flex items-end gap-3">
-            <div className=" px-5 py-3.5 rounded-[30px]">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-[#8D8D8D] rounded-full animate-bounce [animation-delay:0ms]" />
-                <span className="w-2 h-2 bg-[#8D8D8D] rounded-full animate-bounce [animation-delay:150ms]" />
-                <span className="w-2 h-2 bg-[#8D8D8D] rounded-full animate-bounce [animation-delay:300ms]" />
-              </div>
-            </div>
-          </div>
+        {isLoadingMessages && character && (
+          <TypingIndicator avatar={character.avatar} name={character.name} />
         )}
 
         {messages.map((message) => (

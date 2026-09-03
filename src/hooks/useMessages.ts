@@ -28,7 +28,7 @@ export function useMessages() {
         conversation: res.data.conversation,
       };
     },
-    enabled: !!activeConversationId,
+    enabled: !!PREVIEW_MODE && !!activeConversationId,
     staleTime: 1000 * 10,
   });
 
