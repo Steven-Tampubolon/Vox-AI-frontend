@@ -63,7 +63,7 @@ export default function StepCharacterIntro({ onNext, onBack }: StepCharacterInfo
                                 <img 
                                     src={character.avatar} 
                                     alt={character.name} 
-                                    className="w-full h-auto scale-x-[-1] object-contain"
+                                    className="w-full h-auto scale-x-[1] object-contain"
                                 />
 
                         </div>
