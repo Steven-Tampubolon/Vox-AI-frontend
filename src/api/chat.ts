@@ -45,7 +45,10 @@ export const chatApi = {
             try {
               const res = await fetch(url, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "X-API-Key": import.meta.env.VITE_API_KEY ?? "",
+                },
                 body: JSON.stringify(payload),
                 signal: controller.signal,
               });
