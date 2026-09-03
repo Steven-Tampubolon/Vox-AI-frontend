@@ -46,8 +46,7 @@ export const chatApi = {
               const res = await fetch(url, {
                 method: "POST",
                 headers: { 
-                    "Content-Type": "application/json", 
-                    "X-API-Key": import.meta.env.VITE_API_KEY ?? "",
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify(payload),
                 signal: controller.signal,
@@ -78,7 +77,7 @@ export const chatApi = {
 
                         const data = line.slice("data: ".length)
 
-                        if (data === "[DONE") {
+                        if (data === "[DONE]") {
                             callbacks.onDone({ conversation_id: conversationId })
                             return
                         }

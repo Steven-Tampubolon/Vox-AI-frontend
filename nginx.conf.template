@@ -1,0 +1,40 @@
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # ── BFF Proxy ─────────────────────────────────────────────────
+    # Semua request /api/* di-forward ke backend.
+    # X-API-Key di-inject DI SINI — tidak pernah sampai ke browser.
+    # ${API_KEY}, ${BACKEND_HOST}, ${BACKEND_PORT} disubstitusi oleh
+    # entrypoint.sh saat container start (bukan hardcoded).
+    location /api/ {
+        proxy_pass         http://${BACKEND_HOST}:${BACKEND_PORT}/api/;
+        proxy_set_header   X-API-Key "${API_KEY}";
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # SSE (Server-Sent Events) — wajib untuk streaming chat
+        proxy_http_version 1.1;
+        proxy_set_header   Connection "";
+        proxy_buffering    off;
+        proxy_cache        off;
+        proxy_read_timeout 120s;
+    }
+
+    # Semua route non-file diarahkan ke index.html
+    # supaya react-router-dom bisa handle client-side routing
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    gzip on;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+}
