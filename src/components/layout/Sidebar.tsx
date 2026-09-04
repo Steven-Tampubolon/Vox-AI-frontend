@@ -186,6 +186,7 @@ export default function Sidebar() {
                         }}
                         onBlur={() => handleRenameSubmit(conv.id)}
                         onClick={(e) => e.stopPropagation()}
+                        maxLength={80}
                         className="w-full bg-[#252525] text-white text-xs px-2 py-0.5
                         rounded-md outline-none border border-[#E35336]" 
                         />

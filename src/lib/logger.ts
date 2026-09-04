@@ -1,5 +1,7 @@
 // src/lib/logger.ts
 
+const isDev = import.meta.env.DEV;
+
 const STYLES = {
   prefix:  "color:#E35336;font-weight:bold",
   send:    "color:#4ADE80;font-weight:bold",
@@ -11,39 +13,49 @@ const STYLES = {
 };
 
 export const logger = {
-  send: (char: string, msg: string) =>
+  send: (char: string, msg: string) => {
+    if (!isDev) return;
     console.log(
       "%c[VOX AI] %c→ SEND %c[%s]",
       STYLES.prefix, STYLES.send, STYLES.char, char,
       "\n Message:", msg
-    ),
+    );
+  },
 
-  reply: (char: string, reply: string, convId: string) =>
+  reply: (char: string, reply: string, convId: string) => {
+    if (!isDev) return;
     console.log(
       "%c[VOX AI] %c← REPLY %c[%s]",
       STYLES.prefix, STYLES.reply, STYLES.char, char,
       "\n Conversation:", convId,
       "\n Reply:", reply
-    ),
+    );
+  },
 
-  error: (char: string, err: unknown) =>
+  error: (char: string, err: unknown) => {
+    if (!isDev) return;
     console.error(
       "%c[VOX AI] %c✕ ERROR %c[%s]",
       STYLES.prefix, STYLES.error, STYLES.char, char,
       "\n", err
-    ),
+    );
+  },
 
-  warning: (msg: string, detail: unknown) =>
+  warning: (msg: string, detail: unknown) => {
+    if (!isDev) return;
     console.warn(
       "%c[VOX AI] %c⚠ WARNING",
       STYLES.prefix, STYLES.warning,
       "\n", msg, detail
-    ),
+    );
+  },
 
-  info: (label: string, detail?: unknown) =>
+  info: (label: string, detail?: unknown) => {
+    if (!isDev) return;
     console.log(
       "%c[VOX AI] %cℹ %s",
       STYLES.prefix, STYLES.info, label,
       ...(detail !== undefined ? ["\n", detail] : [])
-    ),
+    );
+  },
 };

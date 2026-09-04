@@ -128,6 +128,7 @@ export default function ChatInput() {
       onKeyDown={handleKeyDown}
       disabled={isLoading || isRecording || isVoiceSending}
       rows={1}
+      maxLength={4000}
       placeholder={isRag ? "Tanya seputar dokumen yang kamu upload..." : "Ketik pesan..."}
       className="flex-1 bg-transparent text-white text-base placeholder-[#666668]
       outline-none resize-none leading-6 min-h-11
@@ -197,7 +198,7 @@ export default function ChatInput() {
   </div>
 </div>
 
-        <div className="flex items-center justify-center gap-3 text-[10px] text-[#4A4A4C]">
+        <div className="flex items-center justify-between gap-3 text-[10px] text-[#4A4A4C] px-1">
           <span>
             {isLoading
             ? "Klik tombol untuk menghentikan balasan"
@@ -207,17 +208,23 @@ export default function ChatInput() {
             ? "Menunggu balasan AI..."
             : "Enter untuk kirim · Shift+Enter untuk baris baru"}
           </span>
-          {hasLastAudio && !isRecording && !isVoiceSending && !isPlaying && (
-            <button
-            id="voice-reply-button"
-            onClick={replayAudio}
-            className="text-[#666668] hover:text-white transition-colors shrink-0"
-            >
-              ↺ Putar ulang
-
-            </button>
-          )}
-
+          <div className="flex items-center gap-3 shrink-0">
+            {hasLastAudio && !isRecording && !isVoiceSending && !isPlaying && (
+              <button
+              id="voice-reply-button"
+              onClick={replayAudio}
+              className="text-[#666668] hover:text-white transition-colors"
+              >
+                ↺ Putar ulang
+              </button>
+            )}
+            {/* sec: SEC-HIGH-03 — character counter */}
+            {text.length > 0 && (
+              <span className={text.length > 3800 ? "text-[#E35336]" : "text-[#4A4A4C]"}>
+                {text.length}/4000
+              </span>
+            )}
+          </div>
         </div>
 
       </div>

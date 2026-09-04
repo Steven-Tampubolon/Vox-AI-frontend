@@ -1,8 +1,20 @@
 server {
-    listen 80;
+    listen 8080;
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
+
+    server_tokens off;
+
+    # ── Security Headers ───────────────────────────────────────────
+    add_header X-Frame-Options            "SAMEORIGIN"                                                                                                       always;
+    add_header X-Content-Type-Options     "nosniff"                                                                                                          always;
+    add_header Referrer-Policy            "strict-origin-when-cross-origin"                                                                                  always;
+    add_header Permissions-Policy         "microphone=(self), camera=(), geolocation=(), payment=()"                                                         always;
+    add_header Content-Security-Policy    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' http: https:; media-src 'self' data: blob:;" always;
+
+    # ── Upload body size — sinkron dengan dropzone maxSize (10MB) ──
+    client_max_body_size 10M;
 
     # ── BFF Proxy ─────────────────────────────────────────────────
     # Semua request /api/* di-forward ke backend.
