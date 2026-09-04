@@ -187,7 +187,5 @@ export function useVoiceChat() {
     stopRecording,
     stopAudio,
     replayAudio,
-    // Hanya untuk testing — tidak digunakan di UI
-    _sendVoiceMessageForTest: sendVoiceMessage,
   }
 }

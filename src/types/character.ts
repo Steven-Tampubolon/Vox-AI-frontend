@@ -11,7 +11,7 @@ export interface CharacterInfo {
   capability: string[];
 }
 
-export interface Character {
+export interface CharacterFE {
   id: string;
   name: string;
   slug: CharacterSlug;

@@ -1,6 +1,6 @@
-import { type Character } from "../types/character";
+import { type CharacterFE } from "../types/character";
 
-export const CHARACTERS: Character[] = [
+export const CHARACTERS: CharacterFE[] = [
     {
         id: "1",
         name: "Abang Betawi",
